@@ -1,0 +1,149 @@
+<nav class="d-flex align-self-center main-nav bg-primary text-dark">
+    <div class="pt-3 pl-4">
+        <b>
+            <h2>
+                Payment Summary
+            </h2>
+        </b>
+    </div>
+</nav>
+<div class="container-fluid my-3">
+    <div class="row">
+        <div class="col-12">
+            <p-table styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="400px"
+                [value]="userAmountData" class="mx-3" [paginator]="true" [rows]="size" [totalRecords]="totalRecords"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
+                [showCurrentPageReport]="true" [rowsPerPageOptions]="rowsPerPageOptions">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th *ngFor="let col of cols" pResizableColumn>
+                            {{col.header}}
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td class="text-wrap text-break">
+                            {{data.amount|currency:"INR":"symbol"}}
+                        </td>
+                        <td class="text-wrap text-break">
+                            {{data.createdDate| date: shortDate}}
+                        </td>
+                        <td class="text-wrap text-break">
+                            {{data.payType}}
+                        </td>
+                        <td class="text-wrap text-break">
+                            <!-- <button style="font-size: 15px; padding: 10px;" class="p-button bg-dark rounded"
+                                >
+                                <i class="pi pi-upload" style="font-size: 15px"></i>
+                            </button> &nbsp; -->
+                            <button class="p-button bg-dark rounded" style="font-size: 15px; padding: 10px;"
+                                (click)="viewReceipt(data)" pTooltip="View Receipt">
+                                <i class="pi pi-eye" style="font-size: 15px"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td [attr.colspan]="3" class="text-center">
+                            No records found
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+<!-- Generate maintenance Bill Dialog -->
+<p-dialog [(visible)]="viewReceiptDialog" [style]="{width: '650px'}" [modal]="true" styleClass="p-fluid"
+    (onHide)="hideViewReceiptDialog()">
+
+    <ng-template pTemplate="content">
+
+        <div id="htmlData" *ngIf="viewReceiptDialog">
+            <table class="table">
+                <thead class="thead-light">
+                    <tr class="table-primary">
+                        <th scope="col" class="align-center text-center" colspan="3" style="margin-bottom: 20px;">
+                            <img width="100" src="{{imageUrl}}" alt="profilePhoto" class="d-inline rounded-circle">
+                            <p style="font-size: 2rem;" class="d-inline">
+                                Payment Receipt
+                            </p>
+                        </th>
+                    </tr>
+                    <tr class="table-primary">
+                        <th scope="col" colspan="3" class="text-center">The Aqua Polaris Co. Op. Housing Service Society Limited, 
+                            <br>Nr. S.P. Ring Road, NH-8,
+                            <br>Nr. Pushkar bung, Nana Chiloda, Ahmedabad
+                            <br>382330
+                            <br>Registered Cert. No.: NA DH N/ GNR/ SA(HA) 7347 Year 2012
+                            <br>
+                            <br><i class="pi pi-envelope"></i>&nbsp;aquapolaris0310@gmail.com
+                            <!-- <br> -->
+                            <!-- <br><i class="pi pi-phone"></i>&nbsp;9712393956 -->
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="table-secondary">Name : </th>
+                        <th> {{flatNo}}</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th class="table-secondary">Month :</th>
+                        <th> {{recieptData?.createdDate| date:shortDate}}
+                        </th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th class="table-secondary">Payment type : </th>
+                        <th> {{recieptData?.payType}}</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th class="table-secondary">Reference No : </th>
+                        <th> {{recieptData?.referenceNo}}</th>
+                        <th></th>
+                    </tr>
+                    <tr class="table-dark">
+                        <th scope="col">Description</th>
+                        <th scope="col">Amount</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Amount</td>
+                        <td class="text-wrap text-break" *ngIf="recieptData?.amount">{{recieptData?.amount |currency:"INR":"symbol"}}</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Remaining Amount</td>
+                        <td class="text-wrap text-break" *ngIf="remainingAmount">{{remainingAmount |currency:"INR":"symbol"}}</td>
+                        <td></td>
+                    </tr>
+
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <!-- <tr class="table-success">
+                        <td>Total</td>
+                        <td *ngIf="recieptData?.amount">{{recieptData?.amount |currency:"INR":"symbol"}}</td>
+                        <td></td>
+                    </tr> -->
+                </tbody>
+            </table>
+
+        </div>
+
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button type="button" pButton pRipple (click)="exportPdf()" class="bg-dark" pTooltip="Download PDF"
+            tooltipPosition="bottom">
+            <i class="pi pi-download" style="font-size: 15px"></i>
+        </button>
+    </ng-template>
+
+</p-dialog>

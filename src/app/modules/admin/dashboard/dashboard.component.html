@@ -1,0 +1,626 @@
+<nav class="align-self-center main-nav bg-primary text-dark">
+    <div class="pt-3 px-4">
+        <div class="row">
+            <div class="col-6">
+                <b>
+                    <h2>
+                        Dashboard
+                    </h2>
+                </b>
+            </div>
+            <div class="col-6">
+                <span class="float-right">
+                    <b>
+                        <h2>
+                            Total pending amount: {{totalPendingAmount |currency:"INR":"symbol"}}
+                        </h2>
+                    </b>
+                </span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid my-3">
+    <div class="row">
+
+        <div class="col-lg-2"></div>
+
+        <div class="col-lg-8 col-sm-12 col-md-12 ">
+            <p-table styleClass="p-datatable-gridlines" [scrollable]="true" scrollHeight="400px" [value]="lstofUser" #dt
+                class="mx-3" [paginator]="true" [rows]="size" [totalRecords]="totalRecords"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
+                [showCurrentPageReport]="true" [rowsPerPageOptions]="rowsPerPageOptions">
+                <ng-template pTemplate="colgroup">
+                    <colgroup>
+                        <col *ngFor="let col of cols" style="width: 150px;">
+                    </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th *ngFor="let col of cols">
+                            {{col.header}}
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-user>
+                    <tr>
+                        <td>
+                            {{user.user_name}}
+                        </td>
+                        <td *ngIf="user.amount > 0; else amountPaid">
+                            <p style="color: red;">
+                                {{user.amount |currency:"INR":"symbol"}}
+                            </p>
+                        </td>
+                        <ng-template #amountPaid>
+                            <td>
+                                <p style="color: green;">
+                                    {{user.amount |currency:"INR":"symbol"}}
+                                </p>
+                            </td>
+                        </ng-template>
+                        <td>
+                            <button pTooltip="Generate Maintenance"
+                                style="font-size: 15px; padding: 10px;" class="p-button bg-dark rounded"
+                                (click)="generateMaintenance(user.user_name, user.amount, user?.previousReading)">
+                                <i class="pi pi-upload" style="font-size: 15px"></i>
+                            </button> &nbsp;
+                            <button pTooltip="Receive Payment" style="font-size: 15px; padding: 10px;"
+                                class="p-button bg-dark rounded" (click)="showReceivePaymentDialog(user.user_name)">
+                                <i class="fa fa-money" style="font-size: 15px"></i>
+                            </button> &nbsp;
+                            <!-- <button class="p-button bg-dark rounded" style="font-size: 15px; padding: 10px;"
+                                (click)="opengenerateMaintenanceBillDialog(user.user_name)">
+                                <i class="pi pi-eye" style="font-size: 15px"></i>
+                            </button> -->
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td [attr.colspan]="3" class="text-center">
+                            No records found
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <div class="col-lg-2"></div>
+
+        <br>
+
+        <div class="col-lg-2"></div>
+
+        <div class="col-lg-8 col-sm-12 col-md-12 ">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Label</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Tenant Fees</th>
+                        <td>{{feesMasterData?.TENAT2022.amount|currency:"INR":"symbol"}}</td>
+                        <td>
+                            <button pTooltip="Change Tenant Fees" style="font-size: 15px; padding: 10px;"
+                                class="p-button bg-dark rounded" (click)="addTenatFees()">
+                                <i class="pi pi-pencil" style="font-size: 15px"></i>
+                            </button>
+                            <!-- <button style="font-size: 15px; padding: 5px;"
+                        class="p-button bg-primary rounded d-inline" (click)="addTenatFees()">
+                        Change Tenant Fees
+                    </button> -->
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            Maintenance
+                            <br>
+                            Maintenance Tenant
+                        </th>
+                        <td>{{feesMasterData?.MAINTENANCE_AMOUNT.amount|currency:"INR":"symbol"}}
+                            <br>
+                            {{feesMasterData?.MAINTENANCE_AMOUNT_TENANT.amount|currency:"INR":"symbol"}}
+                        </td>
+                        <td>
+                            <button pTooltip="Change Maintainence Amount" style="font-size: 15px; padding: 10px;"
+                                class="p-button bg-dark rounded" (click)="addMaintenanceFees()">
+                                <i class="pi pi-pencil" style="font-size: 15px"></i>
+                            </button>
+                            <!-- <button style="font-size: 15px; padding: 5px;" class="p-button bg-primary rounded d-inline"
+                                (click)="addMaintenanceFees()">
+                                Change Maintainence Amount
+                            </button> -->
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Water Bill Per Unit</th>
+                        <td>{{feesMasterData?.WATER_BILL.amount|currency:"INR":"symbol"}}</td>
+                        <td>
+                            <button pTooltip="Change Water Unit Amount" style="font-size: 15px; padding: 10px;"
+                                class="p-button bg-dark rounded" (click)="addWaterBillFees()">
+                                <i class="pi pi-pencil" style="font-size: 15px"></i>
+                            </button>
+                            <!-- <button style="font-size: 15px; padding: 5px;" class="p-button bg-primary rounded d-inline"
+                                (click)="addWaterBillFees()">
+                                Change Water Unit Amount
+                            </button> -->
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">Transfer Fees For 2-BHK
+                            <br>
+                            Transfer Fees For 3-BHK
+                        </th>
+                        <td>{{feesMasterData?.TRANSFER_2_BHK.amount|currency:"INR":"symbol"}}
+                            <br>
+                            {{feesMasterData?.TRANSFER_3_BHK.amount|currency:"INR":"symbol"}}
+                        </td>
+                        <td>
+                            <button pTooltip="Change Transfer Fees" style="font-size: 15px; padding: 10px;"
+                                class="p-button bg-dark rounded" (click)="addTransferFees()">
+                                <i class="pi pi-pencil" style="font-size: 15px"></i>
+                            </button>
+                            <!-- <button style="font-size: 15px; padding: 5px;" class="p-button bg-primary rounded d-inline"
+                                (click)="addTransferFees()">
+                                Change Transfer Fees
+                            </button> -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-lg-2"></div>
+
+    </div>
+</div>
+
+
+
+
+
+
+<p-dialog [(visible)]="waterBillDialog" [style]="{width: '450px'}" header="{{popupHeader}}" [modal]="true"
+    styleClass="p-fluid" (onHide)="hideWaterBillDialog()">
+
+    <ng-template pTemplate="content">
+        <form [formGroup]="waterBillForm" (ngSubmit)="onSubmitWaterBillForm()">
+            <div class="p-field">
+                <label for="name">Amount* </label>
+                <input type="text" pInputText id="regionName" formControlName="amount" placeholder="Enter Amount"
+                    required autofocus pKeyFilter="num" maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="waterBillForm.controls['amount'].touched && (waterBillForm.controls['amount'].hasError('required') && !waterBillForm.controls['amount'].valid)">
+                    required
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="bg-primary text-dark"
+            (click)="hideWaterBillDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="bg-dark"
+            (click)="onSubmitWaterBillForm()"></button>
+    </ng-template>
+
+</p-dialog>
+
+
+
+
+<p-dialog [(visible)]="tenatDialog" [style]="{width: '450px'}" header="{{popupHeader}}" [modal]="true"
+    styleClass="p-fluid" (onHide)="hidetenatDialog()">
+
+    <ng-template pTemplate="content">
+        <form [formGroup]="tenatForm" (ngSubmit)="onSubmitTenatForm()">
+            <div class="p-field">
+                <label for="name">Amount* </label>
+                <input type="text" pInputText id="regionName" formControlName="amount" placeholder="Enter Amount"
+                    required autofocus pKeyFilter="num" maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="tenatForm.controls['amount'].touched && (tenatForm.controls['amount'].hasError('required') && !tenatForm.controls['amount'].valid)">
+                    required
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="bg-primary text-dark"
+            (click)="hidetenatDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="bg-dark" (click)="onSubmitTenatForm()"></button>
+    </ng-template>
+
+</p-dialog>
+
+
+
+
+<p-dialog [(visible)]="maintenanceDialog" [style]="{width: '450px'}" header="{{popupHeader}}" [modal]="true"
+    styleClass="p-fluid" (onHide)="hidemaintenanceDialog()">
+
+    <ng-template pTemplate="content">
+        <form [formGroup]="maintenanceForm" (ngSubmit)="onSubmitMaintenanceForm()">
+            <div class="p-field">
+                <label for="name">Select maintenance Type* </label>
+                <p-dropdown [options]="maintainenceType" formControlName="type" placeholder="Select maintenance Type"
+                    optionValue="value" [showClear]="true">
+                </p-dropdown>
+                <div class="p-invalid"
+                    *ngIf="maintenanceForm.controls['type'].touched && (maintenanceForm.controls['type'].hasError('required') && !maintenanceForm.controls['type'].valid)">
+                    required
+                </div>
+            </div>
+            <div class="p-field">
+                <label for="name">Amount* </label>
+                <input type="text" pInputText id="regionName" formControlName="amount" placeholder="Enter Amount"
+                    required autofocus pKeyFilter="num" maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="maintenanceForm.controls['amount'].touched && (maintenanceForm.controls['amount'].hasError('required') && !maintenanceForm.controls['amount'].valid)">
+                    required
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="bg-primary text-dark"
+            (click)="hidemaintenanceDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="bg-dark"
+            (click)="onSubmitMaintenanceForm()"></button>
+    </ng-template>
+
+</p-dialog>
+
+
+<p-dialog [(visible)]="TransferDialog" [style]="{width: '450px'}" header="{{popupHeader}}" [modal]="true"
+    styleClass="p-fluid" (onHide)="hideTransferDialog()">
+
+    <ng-template pTemplate="content">
+        <form [formGroup]="TransferForm" (ngSubmit)="onSubmitTransferFeesForm()">
+            <div class="p-field">
+                <label for="name">Select Flat* </label>
+                <p-dropdown [options]="flatType" formControlName="type" placeholder="Select Flat Type">
+                </p-dropdown>
+                <div class="p-invalid"
+                    *ngIf="TransferForm.controls['type'].touched && (TransferForm.controls['type'].hasError('required') && !TransferForm.controls['type'].valid)">
+                    required
+                </div>
+            </div>
+            <div class="p-field">
+                <label for="name">Amount* </label>
+                <input type="text" pInputText id="regionName" formControlName="amount" placeholder="Enter Amount"
+                    required autofocus pKeyFilter="num" maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="TransferForm.controls['amount'].touched && (TransferForm.controls['amount'].hasError('required') && !TransferForm.controls['amount'].valid)">
+                    required
+                </div>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="bg-primary text-dark"
+            (click)="hideTransferDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="bg-dark"
+            (click)="onSubmitTransferFeesForm()"></button>
+    </ng-template>
+
+</p-dialog>
+
+
+
+<!-- Generate maintenance Dialog -->
+<p-dialog [(visible)]="generateMaintenanceDialog" [style]="{width: '450px'}" header="{{popupHeader}}" [modal]="true"
+    styleClass="p-fluid" (onHide)="hideGenerateMaintenanceDialog()">
+
+    <ng-template pTemplate="content">
+        <form [formGroup]="generateMaintenanceForm" (ngSubmit)="GenerateMaintenanceBill()">
+            <div class="p-field">
+                <label for="name">Select Maintainence Type* </label>
+                <p-dropdown [options]="maintainenceType" formControlName="maintainenceType" optionValue="label"
+                    [showClear]="true" placeholder="Select Maintainence type">
+                </p-dropdown>
+                <div class="p-invalid"
+                    *ngIf="(generateMaintenanceFormSubmitted && !generateMaintenanceForm.get('maintainenceType').valid) || (!generateMaintenanceForm.get('maintainenceType').valid && generateMaintenanceForm.get('maintainenceType').touched) ">
+                    <div *ngIf=" ( generateMaintenanceForm.get('maintainenceType').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+
+            <div class="p-field">
+                <label for="name">Month* </label>
+                <p-dropdown [options]="monthList" formControlName="month" optionValue="label" [showClear]="true"
+                    placeholder="Select Month">
+                </p-dropdown>
+                <div class="p-invalid"
+                    *ngIf="(generateMaintenanceFormSubmitted && !generateMaintenanceForm.get('month').valid) || (!generateMaintenanceForm.get('month').valid && generateMaintenanceForm.get('month').touched) ">
+                    <div *ngIf=" ( generateMaintenanceForm.get('month').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+
+            <div class="p-field">
+                <label for="maintenanceAmount">Maintenance Amount* </label>
+                <input type="text" disabled pInputText id="maintenanceAmount" formControlName="maintenanceAmount"
+                    placeholder="Enter Maintenance Amount" required autofocus pKeyFilter="num" maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="(generateMaintenanceFormSubmitted && !generateMaintenanceForm.get('maintenanceAmount').valid) || (!generateMaintenanceForm.get('maintenanceAmount').valid && generateMaintenanceForm.get('maintenanceAmount').touched) ">
+                    <div *ngIf=" (generateMaintenanceForm.get('maintenanceAmount').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+            <div class="p-field">
+                <label for="waterAmount">Water Bill Amount* </label>
+                <input type="text" disabled pInputText id="waterAmount" formControlName="waterAmount"
+                    placeholder="Enter Water Amount" required autofocus pKeyFilter="num" maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="(generateMaintenanceFormSubmitted && !generateMaintenanceForm.get('waterAmount').valid) || (!generateMaintenanceForm.get('waterAmount').valid && generateMaintenanceForm.get('waterAmount').touched) ">
+                    <div *ngIf=" (generateMaintenanceForm.get('waterAmount').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+            <div class="p-field">
+                <label for="currentReading">Current Reading* </label>
+                <input type="text" pInputText id="currentReading" formControlName="currentReading"
+                    placeholder="Enter Current Reading" required autofocus pKeyFilter="num" maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="(generateMaintenanceFormSubmitted && !generateMaintenanceForm.get('currentReading').valid) || (!generateMaintenanceForm.get('currentReading').valid && generateMaintenanceForm.get('currentReading').touched) ">
+                    <div *ngIf=" (generateMaintenanceForm.get('currentReading').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+            <div class="p-field">
+                <label for="previousReading">Previous Reading* </label>
+                <input type="text" pInputText id="previousReading" formControlName="previousReading"
+                    placeholder="Enter Previous Reading" required autofocus pKeyFilter="num" maxLength="50"/>
+                <div class="p-invalid"
+                    *ngIf="(generateMaintenanceFormSubmitted && !generateMaintenanceForm.get('previousReading').valid) || (!generateMaintenanceForm.get('previousReading').valid && generateMaintenanceForm.get('previousReading').touched) ">
+                    <div *ngIf=" (generateMaintenanceForm.get('previousReading').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+
+            <div class="p-field">
+                <label for="usedUnit">Used Water unit* </label>
+                <input type="text" pInputText id="usedUnit" formControlName="usedUnit" placeholder="Enter Used Unit"
+                    required autofocus pKeyFilter="num" maxLength="50" disabled />
+                <div class="p-invalid"
+                    *ngIf="(generateMaintenanceFormSubmitted && !generateMaintenanceForm.get('usedUnit').valid) || (!generateMaintenanceForm.get('usedUnit').valid && generateMaintenanceForm.get('usedUnit').touched) ">
+                    <div *ngIf=" (generateMaintenanceForm.get('usedUnit').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+            <div class="p-field">
+                <label for="averageReading">Average Water Bill </label>
+                <input type="text" pInputText id="averageReading" formControlName="averageReading"
+                    placeholder="Enter Average Water bill" autofocus pKeyFilter="num" maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="(generateMaintenanceFormSubmitted && !generateMaintenanceForm.get('averageReading').valid) || (!generateMaintenanceForm.get('averageReading').valid && generateMaintenanceForm.get('averageReading').touched) ">
+                    <div *ngIf=" (generateMaintenanceForm.get('averageReading').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+
+            <div class="p-field">
+                <label for="otherAmount">Other amount</label>
+                <input type="text" pInputText id="otherAmount" formControlName="otherAmount"
+                    placeholder="Enter Other Amount" autofocus pKeyFilter="num" maxLength="50" />
+                <!-- <div class="p-invalid"
+                    *ngIf="(generateMaintenanceFormSubmitted && !generateMaintenanceForm.get('otherAmount').valid) || (!generateMaintenanceForm.get('otherAmount').valid && generateMaintenanceForm.get('otherAmount').touched) ">
+                    <div *ngIf=" (generateMaintenanceForm.get('otherAmount').errors.required) ">
+                        Required </div>
+                </div> -->
+            </div>
+            <div class="p-field">
+                <label for="otherAmount">Other description</label>
+                <input type="text" pInputText id="otherDescription" formControlName="otherDescription"
+                    placeholder="Enter Other Description" autofocus/>
+                <!-- <div class="p-invalid"
+                    *ngIf="(generateMaintenanceFormSubmitted && !generateMaintenanceForm.get('otherAmount').valid) || (!generateMaintenanceForm.get('otherAmount').valid && generateMaintenanceForm.get('otherAmount').touched) ">
+                    <div *ngIf=" (generateMaintenanceForm.get('otherAmount').errors.required) ">
+                        Required </div>
+                </div> -->
+            </div>
+
+            <!-- <div class="p-field">
+                <label for="amount">Total Payable Amount* </label>
+                <input type="text" disabled pInputText id="amount" formControlName="amount" placeholder="Enter Amount"
+                    required autofocus pKeyFilter="num" maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf=" generateMaintenanceFormSubmitted && generateMaintenanceForm.controls['amount'].touched && (generateMaintenanceForm.controls['amount'].hasError('required') && !generateMaintenanceForm.controls['amount'].valid)">
+                    required
+                </div>
+            </div> -->
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="bg-primary text-dark"
+            (click)="hideGenerateMaintenanceDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="bg-dark"
+            (click)="GenerateMaintenanceBill(generateMaintenanceForm)"></button>
+    </ng-template>
+
+</p-dialog>
+
+<!-- Generate maintenance Bill Dialog -->
+<p-dialog [(visible)]="generateMaintenanceBillDialog" [style]="{width: '650px'}" [modal]="true" styleClass="p-fluid"
+    (onHide)="hideGenerateMaintenanceBillDialog()">
+
+    <ng-template pTemplate="content">
+
+        <div id="htmlData" *ngIf="generateMaintenanceBillDialog">
+            <table class="table">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col" class="align-center text-center" colspan="3" style="font-size: 2rem;">
+                            Maintenance Bill</th>
+                    </tr>
+                    <tr>
+                        <th scope="col" colspan="3" class="text-center">The Aqua Polaris Co. Op. Housing Service Society
+                            Limited,
+                            <br>Nr. S.P. Ring Road, NH-8,
+                            <br>Nr. Pushkar bung, Nana Chiloda, Ahmedabad
+                            <br>382330
+                            <br>Registered Cert. No.: NA DH N/ GNR/ SA(HA) 7347 Year 2012
+                            <br>
+                            <br><i class="pi pi-envelope"></i>&nbsp;aquapolaris0310@gmail.com
+                            <!-- <br> -->
+                            <!-- <br><i class="pi pi-phone"></i>&nbsp;9712393956 -->
+                        </th>
+                    </tr>
+                    <tr>
+                        <th scope="col" colspan="3">Name : {{flatNo}}</th>
+                    </tr>
+                    <tr>
+                        <th scope="col" colspan="3">Month : createdDate</th>
+                    </tr>
+                    <tr>
+                        <th scope="col">Description</th>
+                        <th scope="col">Unit</th>
+                        <th scope="col">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-wrap text-break">Current Reading</td>
+                        <td *ngIf="receiptDetail?.reading">{{receiptDetail?.reading}}</td>
+                        <td>100</td>
+                    </tr>
+                    <tr>
+                        <td>Used Unit </td>
+                        <td *ngIf="receiptDetail?.usedUnit">{{receiptDetail?.usedUnit}}</td>
+                        <td>33</td>
+                    </tr>
+                    <tr>
+                        <td>Rate /- unit</td>
+                        <td *ngIf="receiptDetail?.waterAmount">{{receiptDetail?.waterAmount}}</td>
+                        <td>500</td>
+                    </tr>
+                    <tr>
+                        <td>Maintenance Amount</td>
+                        <td *ngIf="receiptDetail?.maintenanceAmount">{{receiptDetail?.maintenanceAmount}}</td>
+                        <td>653</td>
+                    </tr>
+                    <tr>
+                        <td>Remaining Amount</td>
+                        <td>55</td>
+                        <td>653</td>
+                    </tr>
+                    <tr>
+                        <td>Payment type</td>
+                        <td *ngIf="receiptDetail?.payType">{{receiptDetail?.payType.label}}</td>
+                        <td>653</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td *ngIf="receiptDetail?.amount">{{receiptDetail?.amount}}</td>
+                        <td>@twitter</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button type="button" pButton pRipple (click)="exportPdf()" class="bg-dark" pTooltip="Download PDF"
+            tooltipPosition="bottom">
+            <i class="pi pi-download" style="font-size: 15px"></i>
+        </button>
+    </ng-template>
+
+</p-dialog>
+
+<!-- Receive Payment Dialog -->
+<p-dialog [(visible)]="receivePaymentDialog" [style]="{width: '450px'}" header="{{popupHeader}}" [modal]="true"
+    styleClass="p-fluid" (onHide)="hidePaymentDialog()">
+
+    <ng-template pTemplate="content">
+        <form [formGroup]="receivePaymentForm" (ngSubmit)="onSubmitPayment()">
+            <div class="p-field">
+                <label for="amount">Amount* </label>
+                <input type="text" pInputText id="amount" formControlName="amount" placeholder="Enter Amount" required
+                    autofocus pKeyFilter="num" maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="(receivePaymentFormSubmitted && !receivePaymentForm.get('amount').valid) || (!receivePaymentForm.get('amount').valid && receivePaymentForm.get('amount').touched) ">
+                    <div *ngIf=" ( receivePaymentForm.get('amount').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+
+
+            <div class="p-field">
+                <label for="name">Select Payment Type* </label>
+                <p-dropdown [options]="paymentType" formControlName="payType" optionValue="label" [showClear]="true"
+                    placeholder="Select payment type">
+                </p-dropdown>
+                <div class="p-invalid"
+                    *ngIf="(receivePaymentFormSubmitted && !receivePaymentForm.get('payType').valid) || (!receivePaymentForm.get('payType').valid && receivePaymentForm.get('payType').touched) ">
+                    <div *ngIf=" ( receivePaymentForm.get('payType').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+            <div class="p-field"
+                *ngIf="this.receivePaymentForm.get('payType').value === 'Cheque' || this.receivePaymentForm.get('payType').value === 'Online'">
+                <label for="referenceNo"> Reference No / Cheque No* </label>
+                <input type="text" pInputText id="referenceNo" formControlName="referenceNo"
+                    placeholder="Enter referenceNo" required autofocus maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="(receivePaymentFormSubmitted && !receivePaymentForm.get('referenceNo').valid) || (!receivePaymentForm.get('referenceNo').valid && receivePaymentForm.get('referenceNo').touched) ">
+                    <div *ngIf=" ( receivePaymentForm.get('referenceNo').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+            <div class="p-field"
+                *ngIf="this.receivePaymentForm.get('payType').value === 'Cheque' || this.receivePaymentForm.get('payType').value === 'Online'">
+                <label for="bankName"> Bank Name* </label>
+                <input type="text" pInputText id="bankName" formControlName="bankName" placeholder="Enter bankName"
+                    required autofocus maxLength="50" />
+                <div class="p-invalid"
+                    *ngIf="(receivePaymentFormSubmitted && !receivePaymentForm.get('bankName').valid) || (!receivePaymentForm.get('bankName').valid && receivePaymentForm.get('bankName').touched) ">
+                    <div *ngIf=" ( receivePaymentForm.get('bankName').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+
+            <div class="p-field">
+                <label for="name">Description* </label>
+                <textarea pInputText formControlName="description" maxlength="500" name="description" id="" cols="200"
+                    rows="4" class="w-100" placeholder="Enter Description"></textarea>
+                <!-- <input type="text" pInputText id="regionName" formControlName="description"
+                    placeholder="Enter Description" required maxLength="50" /> -->
+                <div class="p-invalid"
+                    *ngIf="(receivePaymentFormSubmitted && !receivePaymentForm.get('description').valid) || (!receivePaymentForm.get('description').valid && receivePaymentForm.get('description').touched) ">
+                    <div *ngIf=" ( receivePaymentForm.get('description').errors.required) ">
+                        Required </div>
+                </div>
+            </div>
+
+
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="bg-primary text-dark"
+            (click)="hidePaymentDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="bg-dark"
+            (click)="onSubmitPayment(receivePaymentForm)"></button>
+    </ng-template>
+
+</p-dialog>
